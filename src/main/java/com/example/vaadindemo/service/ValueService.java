@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 /**
@@ -26,13 +27,13 @@ public class ValueService implements Serializable {
         this.valueRepository = valueRepository;
     }
 
-    public Integer getValue() {
+    public Value getValue() {
         Optional<Value> byId = valueRepository.findById(VALUE_ID);
-        return byId.orElse(new Value(1L, 0)).getValue();
+        return byId.orElse(new Value(ValueService.VALUE_ID, 0));
     }
 
     public void updateValue(Integer value) {
-        valueRepository.updateValue(VALUE_ID, value);
+        valueRepository.save(new Value(VALUE_ID, value, LocalDateTime.now()));
     }
 
 

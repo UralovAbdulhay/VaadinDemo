@@ -4,6 +4,10 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
@@ -15,11 +19,15 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "Value_s")
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
+@ToString
 public class Value {
 
     @Id
     @Column(name = "id")
-    Long id;
+    String id;
 
     @Column(name = "value_s")
     Integer value;
@@ -28,45 +36,9 @@ public class Value {
     LocalDateTime updatedAt;
 
 
-    public Value(Long id, Integer value) {
+    public Value(String id, Integer value) {
         this.id = id;
         this.value = value;
         this.updatedAt = LocalDateTime.now();
-    }
-
-    public Value() {
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Integer getValue() {
-        return value;
-    }
-
-    public void setValue(Integer value) {
-        this.value = value;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(LocalDateTime updatedAt) {
-        this.updatedAt = updatedAt;
-    }
-
-    @Override
-    public String toString() {
-        return "Value{" +
-                "id='" + id + '\'' +
-                ", value=" + value +
-                ", updatedAt=" + updatedAt +
-                '}';
     }
 }

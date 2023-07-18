@@ -1,11 +1,13 @@
 package com.example.vaadindemo;
 
+import com.example.vaadindemo.entity.Value;
 import com.example.vaadindemo.service.ValueService;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.html.NativeLabel;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
+import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,14 +22,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class CounterView extends VerticalLayout {
 
     private final ValueService valueService;
-    private NativeLabel resLabel;
+    private Value value;
+
 
     @Autowired
     public CounterView(ValueService valueService) {
         this.valueService = valueService;
+        value = valueService.getValue();
+
+
+        Binder<Value> binder = new Binder<>(Value.class);
+
 
         IntegerField textField = new IntegerField("Counter");
-        textField.setValue(0);
+
+        binder.forField(textField).bind(Value::getValue, Value::setValue);
+
         textField.setMin(Integer.MIN_VALUE);
         textField.setMax(Integer.MAX_VALUE);
         textField.setStep(1);
@@ -44,6 +54,7 @@ public class CounterView extends VerticalLayout {
             updateValue(current2);
         });
 
+        increaseBtn.addThemeVariants(ButtonVariant.MATERIAL_OUTLINED);
         increaseBtn.addClickListener(e -> {
             int current = textField.getValue() == null ? 0 : textField.getValue();
             textField.setValue(current + 1);
@@ -51,6 +62,7 @@ public class CounterView extends VerticalLayout {
             updateValue(current2);
         });
 
+        decreaseBtn.addThemeVariants(ButtonVariant.LUMO_ERROR);
         decreaseBtn.addClickListener(e -> {
             int current = textField.getValue() == null ? 0 : textField.getValue();
             textField.setValue(current - 1);
@@ -59,18 +71,17 @@ public class CounterView extends VerticalLayout {
 
         });
 
-        add(textField, new HorizontalLayout(decreaseBtn, increaseBtn));
-        add(resLabel);
+        HorizontalLayout horizontalLayout = new HorizontalLayout(decreaseBtn, increaseBtn);
+        add(textField, horizontalLayout);
+
+        setHorizontalComponentAlignment(Alignment.CENTER, textField, horizontalLayout);
+
 
     }
 
     private void updateValue(Integer integer) {
         valueService.updateValue(integer);
-        updateValueOnView();
-    }
 
-    private void updateValueOnView() {
-        resLabel.setText(String.valueOf(valueService.getValue()));
     }
 
 

@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 /**
@@ -18,6 +19,6 @@ public interface ValueRepository extends JpaRepository<Value, String> {
     @Override
     Optional<Value> findById(String s);
 
-    @Query(nativeQuery = true, value = "update Value set value = :value where id = :id")
-    void updateValue(@Param("id") String id, @Param("value") Integer value);
+    @Query(nativeQuery = true, value = "update Value_s set value_s = :value, updated_at = :updatedAt where id = :id")
+    void updateValue(@Param("id") String id, @Param("value") Integer value, LocalDateTime updatedAt);
 }
