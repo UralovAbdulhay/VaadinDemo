@@ -36,5 +36,10 @@ public class ValueService implements Serializable {
         valueRepository.save(new Value(VALUE_ID, value, LocalDateTime.now()));
     }
 
+    public void updateValue(Value value) {
+        value.setUpdatedAt(LocalDateTime.now());
+        valueRepository.saveAndFlush(value);
+    }
+
 
 }

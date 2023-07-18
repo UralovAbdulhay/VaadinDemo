@@ -7,7 +7,9 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
+import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,21 +24,35 @@ import org.springframework.beans.factory.annotation.Autowired;
 public class CounterView extends VerticalLayout {
 
     private final ValueService valueService;
-    private Value value;
 
 
     @Autowired
     public CounterView(ValueService valueService) {
         this.valueService = valueService;
-        value = valueService.getValue();
+        Value value = valueService.getValue();
 
 
         Binder<Value> binder = new Binder<>(Value.class);
-
+        Binder<Value> binder1 = new Binder<>(Value.class);
 
         IntegerField textField = new IntegerField("Counter");
 
-        binder.forField(textField).bind(Value::getValue, Value::setValue);
+        binder.forField(textField).bind(Value::getValue,
+                Value::setValue
+        );
+
+        TextArea field = new TextArea("-", "-");
+
+
+        binder1.forField(field).bind(Value::toString, (e, e1) -> {
+                    System.out.println(e.getValue());
+                    System.out.println(e1);
+                }
+        );
+        field.addBlurListener(e -> {
+            binder1.readBean(value);
+        });
+
 
         textField.setMin(Integer.MIN_VALUE);
         textField.setMax(Integer.MAX_VALUE);
@@ -49,40 +65,35 @@ public class CounterView extends VerticalLayout {
 
 
         textField.addValueChangeListener((e) -> {
-            System.out.println(e.getSource().getValue());
-            int current2 = textField.getValue() == null ? 0 : textField.getValue();
-            updateValue(current2);
+            try {
+                binder.writeBean(value);
+                valueService.updateValue(value);
+                binder.readBean(value);
+                binder1.readBean(value);
+            } catch (ValidationException ex) {
+                throw new RuntimeException(ex);
+            }
         });
 
         increaseBtn.addThemeVariants(ButtonVariant.MATERIAL_OUTLINED);
         increaseBtn.addClickListener(e -> {
             int current = textField.getValue() == null ? 0 : textField.getValue();
             textField.setValue(current + 1);
-            int current2 = textField.getValue() == null ? 0 : textField.getValue();
-            updateValue(current2);
         });
-
         decreaseBtn.addThemeVariants(ButtonVariant.LUMO_ERROR);
         decreaseBtn.addClickListener(e -> {
             int current = textField.getValue() == null ? 0 : textField.getValue();
             textField.setValue(current - 1);
-            int current2 = textField.getValue() == null ? 0 : textField.getValue();
-            updateValue(current2);
-
         });
 
         HorizontalLayout horizontalLayout = new HorizontalLayout(decreaseBtn, increaseBtn);
         add(textField, horizontalLayout);
+        add(field);
 
-        setHorizontalComponentAlignment(Alignment.CENTER, textField, horizontalLayout);
-
-
-    }
-
-    private void updateValue(Integer integer) {
-        valueService.updateValue(integer);
+        setHorizontalComponentAlignment(Alignment.CENTER, textField, horizontalLayout, field);
 
     }
+
 
 
 }
